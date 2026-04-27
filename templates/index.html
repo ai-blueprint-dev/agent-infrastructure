@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agent Infrastructure · {{ vault_name }}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Source+Serif+4:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/main.css">
+<script>
+// Apply theme BEFORE first paint so there's no flash. Reads localStorage,
+// falls back to OS preference, defaults to light.
+(function() {
+    try {
+        let theme = localStorage.getItem('ai-theme');
+        if (theme !== 'dark' && theme !== 'light') {
+            theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+                ? 'dark' : 'light';
+        }
+        document.documentElement.dataset.theme = theme;
+    } catch (_) {
+        document.documentElement.dataset.theme = 'light';
+    }
+})();
+</script>
+</head>
+<body>
+<div class="page">
+
+  <!-- ─── MASTHEAD ─── -->
+  <div class="cpt-masthead">
+    <div class="masthead-left">
+      <div class="masthead-eyebrow">Version One</div>
+      <div class="hero-title">
+        <span class="hero-word">Agent</span>
+        <em>Infrastructure</em>
+      </div>
+    </div>
+    <div class="masthead-right">
+      <div class="masthead-date">{{ today_str }}</div>
+      <div class="caption-mono">
+        agent infrastructure · {{ plan }} · {{ permission_mode }} ·
+        <a class="masthead-obsidian-link" href="{{ vault_uri }}">obsidian ↗</a> ·
+        <a class="masthead-obsidian-link" href="#" id="theme-toggle" aria-label="toggle theme">☾ dark</a>
+        {% if active %}· <span style="color: var(--accent);">● active · {{ active.project }}</span>{% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── STATUS STRIP (5h · weekly · routines · sonnet · claude design) ─── -->
+  {{ status_strip_html | safe }}
+
+  <hr class="chapter">
+
+  <!-- ─── SKILLS & WORKFLOWS ─── -->
+  <div class="console-h2">Skills &amp; <em>workflows</em></div>
+  <div class="console-sub">Click a card to copy its <code>claude -p</code> command. Paste into a terminal and run.</div>
+  <details class="console-explainer">
+    <summary>What is <code>claude -p</code>?</summary>
+    <div class="console-explainer-body">
+      <p>It's how you ask Claude Code to do <strong>one thing and stop</strong>. You hand it a complete instruction (the prompt), Claude does the work, shows you the result, and quits. No back-and-forth, no "anything else?". Done.</p>
+
+      <p>That's exactly what these skill cards are: complete instructions. Click a card → it copies the full command. Paste it in your terminal → Claude runs it → you watch the result come in. The dashboard is the menu; your terminal is where the food gets cooked.</p>
+
+      <p class="explainer-section-head">When to use what</p>
+      <ol class="explainer-list">
+        <li><strong>The dashboard cards (which use <code>claude -p</code>)</strong> — best for the routines on this page: morning brief, inbox triage, weekly digest. You already know what you want; just run it.</li>
+        <li><strong>Just type <code>claude</code> in a terminal</strong> — opens a normal chat with Claude. Use this when you don't quite know what you want yet, or when you want to keep going after the first answer ("now make it shorter", "redo that with bullet points", "save it somewhere else"). It stays open until you close it.</li>
+        <li><strong>The Claude Code extension in VS Code</strong> — same Claude, but inside your code editor. Use this when you're actually working on code and you want Claude to read and change your files. You see every change as a side-by-side diff and can approve or reject each one.</li>
+      </ol>
+
+      <p>So when you click a card here, nothing happens automatically — it just <strong>copies</strong> the command for you. You're still the one who chooses to run it. That's on purpose: you stay in control, you see exactly what gets run, and the result lives in your terminal where you can scroll back through it.</p>
+
+      <p>Cards with a small <span class="explainer-pill">{input}</span> badge in the corner are templates that need a piece of input from you — a topic, a question, a note. After you paste the command, find the word <code>{input}</code> inside it and replace it with whatever you want before pressing Enter.</p>
+    </div>
+  </details>
+
+  {% for grp in skill_groups %}
+    <div class="console-cat">{{ grp.label }}</div>
+    <div class="atrium-skill-grid">
+      {% for s in grp.entries %}
+        <a class="atrium-skill"
+           href="#"
+           data-prompt="{{ s.prompt }}"
+           {% if s.needs_input %}data-needs-input="1" data-placeholder="{{ s.placeholder or 'input…' }}"{% endif %}
+           title="{{ s.description }}">
+          <div class="atrium-skill-head">
+            <span class="atrium-skill-icon">{{ s.icon }}</span>
+            <span class="atrium-skill-label">{{ s.label }}</span>
+            {% if s.is_routine %}<span class="atrium-skill-routine-tag">routine</span>{% endif %}
+            {% if s.needs_input %}<span class="atrium-skill-input-tag">{input}</span>{% endif %}
+          </div>
+          <div class="atrium-skill-desc">{{ s.description }}</div>
+        </a>
+      {% endfor %}
+    </div>
+  {% endfor %}
+
+  <!-- ─── CONNECTIONS STRIP ─── -->
+  <div class="conn-strip">
+    <div class="conn-strip-eyebrow"><em>Connections</em></div>
+    <div class="conn-strip-pills">
+      {% if mcp_servers %}
+        {% for s in mcp_servers %}
+          <span class="conn-pill">
+            <span class="conn-dot {{ s.status_norm }}"></span>{{ s.display_name }}
+          </span>
+        {% endfor %}
+      {% else %}
+        <span class="conn-strip-empty">No connections cached. Click refresh below or run <code>claude mcp list</code>.</span>
+      {% endif %}
+      <button class="conn-refresh-btn" type="button" id="btn-refresh-mcp">↻ refresh</button>
+    </div>
+  </div>
+
+  <!-- ─── DISPATCHES (today's dashboard runs) ─── -->
+  <div class="section-band">
+    <div class="dispatches-full-eyebrow"><em>Dispatches</em></div>
+    <div class="dispatches-full-sub">From today's runs.</div>
+    <div class="dispatches-full-list">
+      {% if dispatches %}
+        {% for d in dispatches %}
+          <a class="aside-dispatch" href="{{ d.uri }}">
+            <div class="aside-dispatch-line">
+              <span class="aside-dispatch-time">{{ d.time }}</span>
+              <span class="aside-dispatch-label">{{ d.label }}</span>
+            </div>
+            {% if d.topic %}<div class="aside-dispatch-topic">on "{{ d.topic }}"</div>{% endif %}
+            {% if d.meta_line %}<div class="aside-dispatch-meta">{{ d.meta_line }}</div>{% endif %}
+          </a>
+        {% endfor %}
+      {% else %}
+        <div class="dispatches-full-empty">No runs yet today.</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ─── VAULT PULSE ─── -->
+  <div class="section-band">
+    <div class="dispatches-full-eyebrow">Vault <em>Pulse</em></div>
+    <div class="dispatches-full-sub">Recently touched in the vault.</div>
+    <div class="dispatches-full-list">
+      {% if pulse %}
+        {% for p in pulse %}
+          <a class="aside-dispatch" href="{{ p.uri }}">
+            <div class="aside-dispatch-line">
+              <span class="aside-dispatch-time">{{ p.age }}</span>
+              <span class="aside-dispatch-label">{{ p.name }}</span>
+            </div>
+            <div class="aside-dispatch-topic">
+              <span class="vp-verb">{{ p.verb }}</span> · {{ p.dir }}
+            </div>
+          </a>
+        {% endfor %}
+      {% else %}
+        <div class="dispatches-full-empty">No recent file changes.</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ─── THE LONG VIEW ─── -->
+  <div class="long-view-eyebrow">The <em>Long View</em></div>
+
+  <div class="long-view-grid">
+    <!-- Forecast (left) -->
+    <div class="chart-card-tc">
+      <div class="chart-title-tc">The <em>Forecast</em>
+        <span>5-hour window projection</span>
+      </div>
+      <div class="forecast-bar-wrap">
+        <svg class="forecast-bar-svg" viewBox="0 0 360 56" preserveAspectRatio="none">
+          <rect x="0" y="22" width="360" height="22" fill="var(--ring-soft)" rx="4"/>
+          <rect x="0" y="22" width="{{ (fc_used_w * 3.6)|round(2) }}" height="22"
+                fill="var(--accent)" rx="4"/>
+          <rect x="{{ (fc_used_w * 3.6)|round(2) }}" y="22"
+                width="{{ (fc_proj_extra * 3.6)|round(2) }}" height="22"
+                fill="var(--accent)" opacity="0.32" rx="4"/>
+          <line x1="{{ (fc_used_w * 3.6)|round(2) }}" y1="14"
+                x2="{{ (fc_used_w * 3.6)|round(2) }}" y2="50"
+                stroke="var(--fg)" stroke-width="2"/>
+          <text x="{{ (fc_used_w * 3.6)|round(2) }}" y="10" text-anchor="middle"
+                class="forecast-now-label">NOW</text>
+        </svg>
+        <div class="forecast-numbers">
+          <span class="fn-now"><strong>{{ "%.0f"|format(forecast.used_pct) }}%</strong> used now</span>
+          <span class="fn-proj">→ <strong>{{ "%.0f"|format(forecast.proj_pct) }}%</strong> projected by reset</span>
+        </div>
+        <div class="forecast-meta">
+          <span>burn · <strong>{{ forecast.burn_str }}</strong></span>
+          <span>resets in {{ forecast.reset_str }}</span>
+          <span>{{ forecast.cap_str }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7-day bar chart (right) -->
+    <div class="chart-card-tc">
+      <div class="chart-title-tc">Last 7 <em>days</em>
+        <span>{{ "{:,}".format(bar7_total) }} total sessions</span>
+      </div>
+      {{ bar7_svg | safe }}
+    </div>
+  </div>
+
+  <!-- Cumulative — full width -->
+  <div class="chart-card-tc">
+    <div class="chart-title-tc">Cumulative <em>activity</em>
+      <span>{{ "{:,}".format(cum_total) }} sessions · last 30 days</span>
+    </div>
+    {{ activity_svg | safe }}
+  </div>
+
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script src="/static/js/main.js"></script>
+<script>setTimeout(() => location.reload(), 60000);</script>
+</body>
+</html>

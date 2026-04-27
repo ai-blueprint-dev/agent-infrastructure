@@ -1,0 +1,23 @@
+{# Token-window gauge (5h or weekly). Expects: g (dict), _alt (str optional). #}
+{% set kind = _alt | default('five_hour') %}
+<div class="gauge-card">
+  <div class="gauge-eyebrow">
+    {% if kind == 'weekly' %}weekly window · 7d{% else %}5-hour window{% endif %}
+  </div>
+  <div class="gauge-ring" style="--pct: {{ g.pct }};">
+    <svg viewBox="0 0 120 120" class="gauge-svg">
+      <circle class="gauge-track" cx="60" cy="60" r="52" />
+      <circle class="gauge-fill" cx="60" cy="60" r="52"
+              stroke-dasharray="326.7"
+              stroke-dashoffset="{{ 326.7 * (1 - g.pct/100) }}" />
+    </svg>
+    <div class="gauge-value">
+      <div class="gauge-num">{{ g.used | fmt_tokens }}</div>
+      <div class="gauge-cap">/ {{ g.cap | fmt_tokens }}</div>
+    </div>
+  </div>
+  <div class="gauge-foot">
+    <span>{{ g.sessions }} req</span>
+    <span>resets in {{ g.reset_in }}</span>
+  </div>
+</div>

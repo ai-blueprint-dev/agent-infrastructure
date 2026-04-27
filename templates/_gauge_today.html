@@ -1,0 +1,20 @@
+{# Today's routines / daily cap. Expects: g (today dict). #}
+<div class="gauge-card">
+  <div class="gauge-eyebrow">today · routines</div>
+  <div class="gauge-ring" style="--pct: {{ g.pct }};">
+    <svg viewBox="0 0 120 120" class="gauge-svg">
+      <circle class="gauge-track" cx="60" cy="60" r="52" />
+      <circle class="gauge-fill" cx="60" cy="60" r="52"
+              stroke-dasharray="326.7"
+              stroke-dashoffset="{{ 326.7 * (1 - g.pct/100) }}" />
+    </svg>
+    <div class="gauge-value">
+      <div class="gauge-num">{{ g.routines }}</div>
+      <div class="gauge-cap">/ {{ g.cap }}</div>
+    </div>
+  </div>
+  <div class="gauge-foot">
+    <span>{{ g.tokens | fmt_tokens }} tok</span>
+    <span>{{ g.cost | fmt_cost }}</span>
+  </div>
+</div>

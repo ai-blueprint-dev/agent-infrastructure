@@ -1,0 +1,22 @@
+# Personal config — users copy config.example.py to config.py and edit locally
+config.py
+
+# Local runtime caches (MCP list, Anthropic usage snapshots, rate-limit history)
+.cache/
+.secrets/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# IDE / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Optional Claude Code per-project local settings
+.claude/settings.local.json
