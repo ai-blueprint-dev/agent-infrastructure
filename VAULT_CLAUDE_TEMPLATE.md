@@ -25,9 +25,11 @@ Customize the `## About Me` block. Everything else can be used as-is or trimmed.
 ## Vault Structure
 - /raw — staging area for incoming material (research, brain dumps, emails, notes)
 - /wiki — Claude-managed knowledge base (organized, cross-linked articles)
+- /daily-notes — automated routine outputs (Morning Brief, Meeting Prep, Weekly Digest land here)
+- /drafts/awaiting — email drafts waiting for human review (never auto-sent)
 - /outputs — generated content and deliverables
 
-Think of raw/ as the inbox and wiki/ as the filing cabinet. Stuff comes in messy, Claude organizes it.
+Think of raw/ as the inbox and wiki/ as the filing cabinet. Stuff comes in messy, Claude organizes it. Routine outputs accumulate in daily-notes/. Anything that should not auto-send (emails, posts) lands in drafts/awaiting/ for you to review.
 
 ## Wiki System
 You are the librarian of the wiki/ folder. You write and maintain everything in it.

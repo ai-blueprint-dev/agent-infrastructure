@@ -130,7 +130,24 @@ mkdir -p "<vault_path>/.claude/skills"
 
 Tell them: *"Installed N skills into your vault."*
 
-### 2.7 Copy the vault CLAUDE.md template
+### 2.7 Set up the vault folder structure
+
+The repo bundles a `vault-template/` directory with the folders the example skills expect:
+
+- `raw/` — staging area for incoming material (Capture, Research Topic save here)
+- `wiki/` — Claude-managed knowledge base (Compile Vault, Ask Wiki use this)
+  - `wiki/_master-index.md` — starter index file the wiki skills read
+- `daily-notes/` — automated routine outputs (Morning Brief, Meeting Prep, Weekly Digest save here)
+- `drafts/awaiting/` — email drafts waiting for human review
+- `outputs/` — generated content and deliverables
+
+Copy each folder from `vault-template/` into `<vault_path>/`. **Do not overwrite anything** — if the user already has a folder with the same name, leave it alone (they may have content in it). Only the missing folders should be created.
+
+The `.gitkeep` files inside the bundled folders are placeholders to keep git tracking empty dirs. After copying, you can delete them from the user's vault if you want — they're harmless either way.
+
+Tell them: *"Set up your vault folder structure: raw/, wiki/, daily-notes/, drafts/awaiting/, outputs/. The example skills know where to save things."*
+
+### 2.8 Copy the vault CLAUDE.md template
 
 If `<vault_path>/CLAUDE.md` exists, leave it alone and tell them.
 
